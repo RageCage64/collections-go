@@ -1,2 +1,3 @@
 # collections-go
-Generic collections to use with Go >1.18
+
+A dependency-free package of generic Go collection data structures. Compatible with Go 1.18 and above.
