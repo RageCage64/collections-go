@@ -7,14 +7,14 @@ import (
 	"github.com/RageCage64/go-assert"
 )
 
-func TestSetToSlice(t *testing.T) {
-	set := collections.Set[int]{
-		1: {},
-		2: {},
-		3: {},
-	}
-	slice := set.ToSlice()
-	assert.SliceEqual(t, []int{1, 2, 3}, slice)
+func runNewSetTestCase[T comparable](t *testing.T, elements ...T) {
+	t.Helper()
+
+	compareSetAndSlice(t, collections.NewSet(elements...), elements)
+}
+
+func TestNewSet(t *testing.T) {
+	runNewSetTestCase(t, []int{1, 2, 3}...)
 }
 
 func runNewSetSaveDuplicatesTestCase[T comparable](
@@ -24,6 +24,7 @@ func runNewSetSaveDuplicatesTestCase[T comparable](
 	expectedDupes []T,
 ) {
 	t.Helper()
+
 	newSet, dupes := collections.NewSetSaveDuplicates(slice)
 	assert.Assert(
 		t,
@@ -75,4 +76,42 @@ func TestNewSetSaveDuplicates(t *testing.T) {
 			[]int{1, 1, 1},
 		)
 	})
+}
+
+func runSetToSliceTestCase[T comparable](t *testing.T, set collections.Set[T], expected []T) {
+	assert.SliceEqual(t, expected, set.ToSlice())
+}
+
+func TestSetToSlice(t *testing.T) {
+	runSetToSliceTestCase(
+		t,
+		collections.Set[int]{
+			1: {},
+			2: {},
+			3: {},
+		},
+		[]int{1, 2, 3},
+	)
+}
+
+func compareSetAndSlice[T comparable](t *testing.T, set collections.Set[T], slice []T) {
+	t.Helper()
+
+	for _, el := range slice {
+		if !set.Contains(el) {
+			t.Fatalf("expected set to contain %v", el)
+		}
+	}
+	for el := range set {
+		found := false
+		for _, sliceEl := range slice {
+			if el == sliceEl {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("set contained unexpected element %v", el)
+		}
+	}
 }
