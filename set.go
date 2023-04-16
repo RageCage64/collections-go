@@ -1,3 +1,22 @@
+// Copyright (c) 2023 Braydon Kains
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 package collections
 
 // Set is a type alias over a map to an empty struct. This allows a nice
@@ -11,11 +30,26 @@ type Set[T comparable] map[T]struct{}
 //
 // Time Complexity: O(n)
 // Space Complexity: O(n)
-// Allocations: 1 set, n elements.
+// Allocations: 1 slice, n elements (variadic function argument). 1 set, n elements.
 func NewSet[T comparable](elements ...T) Set[T] {
-	set := make(Set[T])
+	set := make(Set[T], len(elements))
 	for i := 0; i < len(elements); i++ {
 		set.Add(elements[i])
+	}
+	return set
+}
+
+// Initialize a new Set with a slice. Good for if you already have a slice and want a
+// set with its values (saves an allocation over NewSet). This function will toss
+// duplicate values, see NewSetSaveDuplicates if you need to retain duplicate info.
+//
+// Time Complexity: O(n)
+// Space Complexity: O(n)
+// Allocations: 1 slice, n elements (variadic function argument). 1 set, n elements.
+func NewSetFromSlice[T comparable](sl []T) Set[T] {
+	set := make(Set[T], len(sl))
+	for i := 0; i < len(sl); i++ {
+		set.Add(sl[i])
 	}
 	return set
 }
@@ -29,7 +63,7 @@ func NewSet[T comparable](elements ...T) Set[T] {
 // Allocations (worst case): 1 set, n/2 elements, 2 slices, one with n-1 space, the
 // second is the first one resized if necessary.
 func NewSetSaveDuplicates[T comparable](slice []T) (Set[T], []T) {
-	set := make(Set[T])
+	set := make(Set[T], len(slice))
 	var dupes []T = nil
 	dupesIdx := 0
 	for _, el := range slice {
@@ -71,7 +105,7 @@ func (set Set[T]) ToSlice() []T {
 //
 // Time Complexity: O(1)
 // Space Complexity: O(1)
-// Allocations: 1 elements
+// Allocations: Set resize
 func (s Set[T]) Add(el T) {
 	s[el] = struct{}{}
 }
@@ -80,7 +114,7 @@ func (s Set[T]) Add(el T) {
 //
 // Time Complexity: O(1)
 // Space Complexity: O(1)
-// Allocations: None
+// Allocations: Set resize
 func (s Set[T]) Remove(el T) {
 	delete(s, el)
 }
@@ -99,9 +133,9 @@ func (s Set[T]) Contains(el T) bool {
 //
 // Time Complexity: O(n)
 // Space Complexity: O(n)
-// Allocations: 1 set, n elements
+// Allocations: 1 set of n elements
 func (s Set[T]) Clone() Set[T] {
-	clone := make(Set[T])
+	clone := make(Set[T], len(s))
 	for el := range s {
 		clone.Add(el)
 	}
