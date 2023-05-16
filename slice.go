@@ -31,6 +31,10 @@ type UnaryPredicate[T any] func(T) bool
 // T and returns an element of type T.
 type UnaryOperator[T any] func(T) T
 
+// UnaryReceiver is a function that takes a single element of type
+// T and uses it to do something without returning anything.
+type UnaryReceiver[T any] func(T)
+
 // Reducer is a function that takes an accumulator and the current
 // element of the slice.
 type Reducer[Acc any, T any] func(accumulator Acc, current T) Acc
@@ -72,6 +76,11 @@ func (sl Slice[T]) Filter(pred UnaryPredicate[T]) Slice[T] {
 	return SliceFilter(sl, pred)
 }
 
+// Run an operation using every element of the slice one at a time.
+func (sl Slice[T]) ForEach(do UnaryReceiver[T]) {
+	SliceForEach(sl, do)
+}
+
 // AnySlice is an alias over a Go slice that does not enforce T satisfying
 // comparable. Any method that relies on comparison of elements is not
 // available for AnySlice.
@@ -90,10 +99,29 @@ func (sl AnySlice[T]) Filter(pred UnaryPredicate[T]) AnySlice[T] {
 	return SliceFilter(sl, pred)
 }
 
+// Run an operation using every element of the slice one at a time.
+func (sl AnySlice[T]) ForEach(do UnaryReceiver[T]) {
+	SliceForEach(sl, do)
+}
+
 /*****************
 This section contains the direct API, which is a more traditional Go style
 API.
 *****************/
+
+// Produces an array with n elements from 0 to n-1. Good for producing a slice
+// to do things n times. Produces a Slice[int], great for calling into ForEach.
+//
+// Time Complexity: O(n)
+// Space Complexity: O(n)
+// Allocations: Slice of n elements
+func Range(n int) Slice[int] {
+	sl := make(Slice[int], n)
+	for i := 0; i < n; i++ {
+		sl[i] = i
+	}
+	return sl
+}
 
 // Check if a slice contains an element.
 //
@@ -230,4 +258,15 @@ func SliceReduce[Acc any, T any](
 		accumulator = reducer(accumulator, sl[i])
 	}
 	return accumulator
+}
+
+// Run an operation using each element of the slice one at a time.
+//
+// Time Complexity: O(n * m) (where m is the complexity of the operation)
+// Space Complexity: O(1)
+// Allocations: None
+func SliceForEach[T any](sl []T, do UnaryReceiver[T]) {
+	for i := 0; i < len(sl); i++ {
+		do(sl[i])
+	}
 }

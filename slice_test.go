@@ -125,3 +125,11 @@ func TestReduce(t *testing.T) {
 	)
 	assert.Equal(t, 15, result)
 }
+
+func TestForEach(t *testing.T) {
+	result := 0
+	collections.Range(5).ForEach(func(x int) {
+		result++
+	})
+	assert.Equal(t, 5, result)
+}
