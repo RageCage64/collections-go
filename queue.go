@@ -48,7 +48,7 @@ func (head *LLNode[T]) Range() []T {
 	return result
 }
 
-func (head *LLNode[T]) AddToEnd(val T) *LLNode[T] {
+func (head *LLNode[T]) AddToTail(val T) *LLNode[T] {
 	curr := head
 	for curr.Next != nil {
 		curr = curr.Next
@@ -58,7 +58,7 @@ func (head *LLNode[T]) AddToEnd(val T) *LLNode[T] {
 	return node
 }
 
-func (head *LLNode[T]) AddToStart(val T) *LLNode[T] {
+func (head *LLNode[T]) AddToHead(val T) *LLNode[T] {
 	node := &LLNode[T]{Value: val, Next: head}
 	head.Prev = node
 	return node
@@ -82,7 +82,7 @@ func (q *Queue[T]) Enqueue(val T) {
 	if q.Head == nil {
 		q.Head = &LLNode[T]{Value: val}
 	} else {
-		q.Head.AddToEnd(val)
+		q.Head.AddToTail(val)
 	}
 }
 
@@ -106,7 +106,7 @@ func (s *Stack[T]) Push(val T) {
 	if s.Head == nil {
 		s.Head = &LLNode[T]{Value: val}
 	} else {
-		node := s.Head.AddToStart(val)
+		node := s.Head.AddToHead(val)
 		s.Head = node
 	}
 }

@@ -33,7 +33,7 @@ type UnaryOperator[T any] func(T) T
 
 // Reducer is a function that takes an accumulator and the current
 // element of the slice.
-type Reducer[Acc any, T any] func(accumulator Acc, current T)
+type Reducer[Acc any, T any] func(accumulator Acc, current T) Acc
 
 /*****************
 The alias API, which allows for receiver-style calling convention.
@@ -191,7 +191,7 @@ func SliceMap[T any](sl []T, op UnaryOperator[T]) []T {
 // Run a predicate on every element in the slice, and return a slice
 // that contains every element for which the predicate was true.
 //
-// Sometimes known by other names: Where,
+// Sometimes known by other names: Where
 //
 // Time Complexity: O(n * m) (where m = complexity of predicate)
 // Space Complexity: O(n)
@@ -224,10 +224,10 @@ func SliceFilter[T any](sl []T, pred UnaryPredicate[T]) []T {
 func SliceReduce[Acc any, T any](
 	sl []T,
 	accumulator Acc,
-	folder Reducer[Acc, T],
+	reducer Reducer[Acc, T],
 ) Acc {
 	for i := 0; i < len(sl); i++ {
-		folder(accumulator, sl[i])
+		accumulator = reducer(accumulator, sl[i])
 	}
 	return accumulator
 }

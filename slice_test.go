@@ -27,6 +27,101 @@ import (
 )
 
 func TestSliceContains(t *testing.T) {
-	x := []int{1, 2, 3}
-	assert.Assert(t, collections.SliceContains(x, 1), "it didn't")
+	haystack := []int{1, 2, 3}
+	needle := 1
+	assert.Assert(
+		t,
+		collections.SliceContains(haystack, needle),
+		"expected %v to contain %d", haystack, needle,
+	)
+}
+
+func TestSliceContainsEach(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	needles := []int{5, 3, 4, 6}
+	assert.Assert(
+		t,
+		collections.SliceContainsEach(haystack, needles),
+		"expected %v to contain each of %v", haystack, needles,
+	)
+}
+
+func TestSliceSubset(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	subset := []int{3, 4, 5}
+	assert.Assert(
+		t,
+		collections.SliceSubset(haystack, subset),
+		"expected %v to contain subset %v", haystack, subset,
+	)
+}
+
+func TestSliceSubsetEqualSlices(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	subset := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	assert.Assert(
+		t,
+		collections.SliceSubset(haystack, subset),
+		"expected %v to contain subset %v", haystack, subset,
+	)
+}
+
+func TestSliceSubsetOutOfOrderFails(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	subset := []int{4, 3, 5}
+	assert.Assert(
+		t,
+		!collections.SliceSubset(haystack, subset),
+		"expected %v not to contain out of order subset %v", haystack, subset,
+	)
+}
+
+func TestSliceSubsetStrict(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	subset := []int{5, 6, 7}
+	assert.Assert(
+		t,
+		collections.SliceSubsetStrict(haystack, subset),
+		"expected %v to contain strict subset %v", haystack, subset,
+	)
+}
+
+func TestSliceSubsetStrictEqualSetFails(t *testing.T) {
+	haystack := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	subset := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	assert.Assert(
+		t,
+		!collections.SliceSubsetStrict(haystack, subset),
+		"expected %v not to have strict subset %v", haystack, subset,
+	)
+}
+
+func TestMap(t *testing.T) {
+	sl := collections.Slice[int]{1, 2, 3}
+	result := sl.Map(
+		func(x int) int {
+			return x + 1
+		},
+	)
+	assert.SliceEqual(t, []int{2, 3, 4}, result)
+}
+
+func TestFilter(t *testing.T) {
+	sl := collections.Slice[int]{1, 2, 3, 4}
+	result := sl.Filter(
+		func(x int) bool {
+			return x%2 == 0
+		},
+	)
+	assert.SliceEqual(t, []int{2, 4}, result)
+}
+
+func TestReduce(t *testing.T) {
+	sl := collections.Slice[int]{1, 2, 3, 4, 5}
+	result := collections.SliceReduce(sl, 0,
+		func(accumulator int, current int) int {
+			return accumulator + current
+		},
+	)
+	assert.Equal(t, 15, result)
 }
